@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "627579204732",
+    "project_id": "twitter-flutter-hvp230822",
+    "storage_bucket": "twitter-flutter-hvp230822.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627579204732:android:e75671b85571179c9945f9",
+        "android_client_info": {
+          "package_name": "com.example.twitter_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "627579204732-j5j15gr1ulcj2f3t2pos2c3r2mtuujgl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbVYXSdEylamcmA1ppIO8CPNIszzUiGNY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "627579204732-j5j15gr1ulcj2f3t2pos2c3r2mtuujgl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
