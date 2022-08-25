@@ -11,8 +11,22 @@ class FeedPage extends StatefulWidget {
 class _FeedPageState extends State<FeedPage> {
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Feed Page'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Feeds'),
+        centerTitle: false,
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed('/CreateFeedPage/');
+            },
+            child: const Icon(
+              Icons.add_box_outlined,
+              color: Colors.black,
+            ),
+          )
+        ],
+      ),
     );
   }
 }
