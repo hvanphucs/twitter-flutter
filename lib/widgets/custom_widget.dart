@@ -178,3 +178,54 @@ void _getImage(ImageSource source, Function onImageSelected) async {
     print(e.toString());
   }
 }
+
+Widget customListTile(BuildContext context,
+    {Widget? title,
+    Widget? subtitle,
+    Widget? leading,
+    Widget? trailing,
+    Function? onTap}) {
+  return customInkWell(
+      context: context,
+      function2: () {
+        if (onTap != null) {
+          onTap();
+        }
+      },
+      child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const SizedBox(
+                width: 10,
+              ),
+              Container(
+                width: 40,
+                height: 40,
+                child: leading,
+              ),
+              const SizedBox(
+                width: 20,
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width - 80,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Expanded(child: title ?? Container()),
+                        trailing ?? Container(),
+                      ],
+                    ),
+                    subtitle!
+                  ],
+                ),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+            ],
+          )));
+}

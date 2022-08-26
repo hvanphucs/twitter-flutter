@@ -6,8 +6,8 @@ import 'package:twitter_flutter/helper/constants.dart';
 import 'dart:developer' as devtools show log;
 
 class Utility {
-  static void cprint(dynamic data) {
-    devtools.log(data.toString());
+  static void cprint(dynamic data, {String? info}) {
+    devtools.log(info == null ? data.toString() : '[$info] data.toString()');
   }
 
   static void showCustomSnackBar(String text, BuildContext context,
@@ -46,5 +46,46 @@ class Utility {
     var dt = DateTime.parse(date);
     var dat = DateFormat.yMMMd().format(dt);
     return dat;
+  }
+
+  static List<String> getHashTags(String text) {
+    RegExp reg = RegExp(
+        r"([#])\w+|(https?|ftp|file|#)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]*");
+    Iterable<Match> matches = reg.allMatches(text);
+    List<String> resultMatches = [];
+    for (Match match in matches) {
+      if (match.group(0)!.isNotEmpty) {
+        var tag = match.group(0);
+        resultMatches.add(tag!);
+      }
+    }
+    return resultMatches;
+  }
+
+  static String getChatTime(String? date) {
+    if (date == null || date.isEmpty) {
+      return '';
+    }
+    String msg = '';
+    var dt = DateTime.parse(date);
+
+    if (DateTime.now().isBefore(dt)) {
+      return DateFormat.jm().format(DateTime.parse(date)).toString();
+    }
+
+    var dur = DateTime.now().difference(dt);
+    if (dur.inDays > 0) {
+      msg = '${dur.inDays} d';
+      return dur.inDays == 1 ? 'yesterday' : DateFormat("dd MMM").format(dt);
+    } else if (dur.inHours > 0) {
+      msg = '${dur.inHours} h';
+    } else if (dur.inMinutes > 0) {
+      msg = '${dur.inMinutes} m';
+    } else if (dur.inSeconds > 0) {
+      msg = '${dur.inSeconds} s';
+    } else {
+      msg = 'now';
+    }
+    return msg;
   }
 }

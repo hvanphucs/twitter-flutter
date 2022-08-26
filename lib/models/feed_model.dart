@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class FeedModel {
   String? key;
   String? description;
@@ -8,7 +6,7 @@ class FeedModel {
   String? username;
   String? profilePic;
   int? likeCount;
-  List<LikeList>? likeList;
+  List<String>? likeList;
   int? commentCount;
   String? createdAt;
   String? imagePath;
@@ -18,15 +16,14 @@ class FeedModel {
     this.key,
     this.description,
     this.userId,
-    this.name,
     this.username,
     this.profilePic,
     this.likeCount,
-    //this.likeList,
+    this.likeList,
     this.commentCount,
     this.createdAt,
     this.imagePath,
-    //this.tags,
+    this.tags,
   });
 
   Map<String, dynamic> toJson() {
@@ -58,7 +55,7 @@ class FeedModel {
     createdAt = map['createdAt'];
     imagePath = map['imagePath'];
     username = map['username'];
-    tags = map['tags'];
+    //tags = map['tags'];
   }
 }
 

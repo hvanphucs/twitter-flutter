@@ -14,6 +14,7 @@ import 'package:twitter_flutter/pages/Profile/profile_page.dart';
 import 'package:twitter_flutter/pages/home_page.dart';
 import 'package:twitter_flutter/states/app_state.dart';
 import 'package:twitter_flutter/states/auth_state.dart';
+import 'package:twitter_flutter/states/feed_state.dart';
 import 'package:twitter_flutter/widgets/custom_widget.dart';
 
 void main() async {
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
 
   final AppState _appState = AppState();
   final AuthState _authState = AuthState();
-
+  final FeedState _feedState = FeedState();
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<AppState>(create: (context) => _appState),
         ChangeNotifierProvider<AuthState>(create: (context) => _authState),
+        ChangeNotifierProvider<FeedState>(create: (context) => _feedState),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',

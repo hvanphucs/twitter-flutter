@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:twitter_flutter/helper/constants.dart';
+import 'package:twitter_flutter/helper/utility.dart';
+import 'package:twitter_flutter/models/feed_model.dart';
 import 'package:twitter_flutter/states/auth_state.dart';
+import 'package:twitter_flutter/states/feed_state.dart';
 import 'package:twitter_flutter/widgets/custom_appbar.dart';
 import 'package:twitter_flutter/widgets/custom_widget.dart';
 
@@ -92,6 +95,24 @@ class _CreateFeedPageState extends State<CreateFeedPage> {
   void _onSubmitButton() async {
     if (_textEditingController.text.isEmpty) {
       return;
+    }
+    var authState = Provider.of<AuthState>(context, listen: false);
+    var feedState = Provider.of<FeedState>(context, listen: false);
+
+    FeedModel model = FeedModel(
+      description: _textEditingController.text,
+      userId: authState.userModel!.userId!,
+      username: authState.userModel!.username,
+      profilePic: authState.userModel!.photoUrl ?? dummyProfilePic,
+      createdAt: DateTime.now().toString(),
+      tags: Utility.getHashTags(_textEditingController.text),
+    );
+
+    String? res = await feedState.createFeed(model, _image);
+    if (!mounted) return;
+
+    if (res != null) {
+      Navigator.pop(context);
     }
   }
 
