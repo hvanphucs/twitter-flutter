@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:twitter_flutter/widgets/bottomMenuBar/tab_item.dart';
@@ -13,8 +15,7 @@ class BottomMenuBar extends StatefulWidget {
 }
 
 class _BottomMenuBarState extends State<BottomMenuBar> {
-  PageController? _pageController;
-  int _selectedIcon = 0;
+  late final PageController? _pageController;
 
   @override
   void initState() {
@@ -51,7 +52,7 @@ class _BottomMenuBarState extends State<BottomMenuBar> {
       {bool isCustomIcon = false, int? icon}) {
     var state = Provider.of<AppState>(context);
     return Expanded(
-      child: Container(
+      child: SizedBox(
         height: double.infinity,
         width: double.infinity,
         child: AnimatedAlign(
@@ -76,7 +77,6 @@ class _BottomMenuBarState extends State<BottomMenuBar> {
               ),
               onPressed: () {
                 setState(() {
-                  _selectedIcon = index;
                   state.setPageIndex = index;
                 });
               },

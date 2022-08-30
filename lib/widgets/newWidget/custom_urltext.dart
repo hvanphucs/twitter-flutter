@@ -6,16 +6,17 @@ class UrlText extends StatelessWidget {
   final TextStyle? style;
   final TextStyle? urlStyle;
 
-  UrlText({this.text, this.style, this.urlStyle});
+  const UrlText({Key? key, this.text, this.style, this.urlStyle})
+      : super(key: key);
 
   List<InlineSpan> getTextSpans() {
-    List<InlineSpan> widgets = [];
+    List<InlineSpan> widgets = <InlineSpan>[];
     RegExp reg = RegExp(
-        r"([#])\w+| [@]\w+|(https?|ftp|file|#)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]*");
-    Iterable<Match> _matches = reg.allMatches(text!);
+        r"(https?|ftp|file|#)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]*");
+    Iterable<Match> matches = reg.allMatches(text!);
     List<_ResultMatch> resultMatches = [];
     int start = 0;
-    for (Match match in _matches) {
+    for (Match match in matches) {
       if (match.group(0)!.isNotEmpty) {
         if (start != match.start) {
           _ResultMatch result1 = _ResultMatch();
@@ -37,16 +38,16 @@ class UrlText extends StatelessWidget {
       result1.text = text!.substring(start);
       resultMatches.add(result1);
     }
+
     for (var result in resultMatches) {
-      if (result.isUrl != null) {
+      if (result.isUrl == true) {
         widgets.add(_LinkTextSpan(
             text: result.text,
-            style:
-                urlStyle != null ? urlStyle : TextStyle(color: Colors.blue)));
+            style: urlStyle ?? const TextStyle(color: Colors.blue)));
       } else {
         widgets.add(TextSpan(
             text: result.text,
-            style: style != null ? style : TextStyle(color: Colors.black)));
+            style: style ?? const TextStyle(color: Colors.black)));
       }
     }
     return widgets;

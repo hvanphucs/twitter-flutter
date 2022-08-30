@@ -1,7 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:twitter_flutter/helper/constants.dart';
 
@@ -162,7 +159,8 @@ class _SilderBarState extends State<SilderBar> {
           const Divider(),
           _menuListRowButton('Profile', icon: Icons.verified_user,
               onPressed: () {
-            Navigator.of(context).pushNamed('/ProfilePage');
+            var userId = Provider.of<AuthState>(context, listen: false).userId;
+            Navigator.of(context).pushNamed('/ProfilePage/$userId');
           }),
           _menuListRowButton('Lists', icon: Icons.list),
           _menuListRowButton('Settings', icon: Icons.settings),

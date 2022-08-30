@@ -1,7 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:twitter_flutter/helper/constants.dart';
+import 'package:twitter_flutter/helper/utility.dart';
 
 Widget customTileText(String? title,
     {BuildContext? context, TextStyle? style}) {
@@ -175,7 +174,7 @@ void _getImage(ImageSource source, Function onImageSelected) async {
     XFile? file = await imagePicker.pickImage(source: source, imageQuality: 50);
     onImageSelected(file);
   } catch (e) {
-    print(e.toString());
+    Utility.cprint(e.toString());
   }
 }
 
@@ -200,7 +199,7 @@ Widget customListTile(BuildContext context,
               const SizedBox(
                 width: 10,
               ),
-              Container(
+              SizedBox(
                 width: 40,
                 height: 40,
                 child: leading,
@@ -208,7 +207,7 @@ Widget customListTile(BuildContext context,
               const SizedBox(
                 width: 20,
               ),
-              Container(
+              SizedBox(
                 width: MediaQuery.of(context).size.width - 80,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

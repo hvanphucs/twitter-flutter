@@ -1,9 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:twitter_flutter/helper/enum.dart';
-import 'package:twitter_flutter/pages/Auth/forget_password_page.dart';
-import 'package:twitter_flutter/pages/home_page.dart';
 import 'package:twitter_flutter/states/auth_state.dart';
 
 import '../../widgets/custom_widget.dart';
@@ -94,26 +91,26 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
-  Widget _submitButton(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 15),
-      width: MediaQuery.of(context).size.width,
-      child: TextButton(
-        style: TextButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-        onPressed: () {},
-        child: const Text(
-          'Sign in',
-          style: TextStyle(
-            color: Colors.red,
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _submitButton(BuildContext context) {
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(vertical: 15),
+  //     width: MediaQuery.of(context).size.width,
+  //     child: TextButton(
+  //       style: TextButton.styleFrom(
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(30),
+  //         ),
+  //       ),
+  //       onPressed: () {},
+  //       child: const Text(
+  //         'Sign in',
+  //         style: TextStyle(
+  //           color: Colors.red,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _labelButton(String title, {Function? onPressed}) {
     return TextButton(

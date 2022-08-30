@@ -57,7 +57,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        SizedBox(
           height: 180,
           child: Stack(
             children: [

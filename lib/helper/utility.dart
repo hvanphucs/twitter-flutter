@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:twitter_flutter/helper/constants.dart';
+import 'package:share_plus/share_plus.dart';
 import 'dart:developer' as devtools show log;
 
 class Utility {
@@ -23,6 +24,16 @@ class Utility {
       ),
       duration: const Duration(seconds: 2),
     ));
+  }
+
+  static String getPostTime2(String? date) {
+    if (date == null || date.isEmpty) {
+      return '';
+    }
+    var dt = DateTime.parse(date);
+    var dat =
+        '${DateFormat.jm().format(dt)} - ${DateFormat("dd MMM yy").format(dt)}';
+    return dat;
   }
 
   static String getUserName({required String? name, required String? id}) {
@@ -87,5 +98,9 @@ class Utility {
       msg = 'now';
     }
     return msg;
+  }
+
+  static share(String message, {String? subject}) {
+    Share.share(message, subject: subject);
   }
 }

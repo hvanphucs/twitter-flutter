@@ -1,21 +1,24 @@
+import 'package:twitter_flutter/models/comment_model.dart';
+
 class FeedModel {
   String? key;
   String? description;
   String? userId;
-  String? name;
+  String? displayName;
   String? username;
   String? profilePic;
   int? likeCount;
-  List<String>? likeList;
+  List<LikeList>? likeList;
   int? commentCount;
   String? createdAt;
   String? imagePath;
-  List<String>? tags;
+  List<dynamic>? tags;
 
   FeedModel({
     this.key,
     this.description,
     this.userId,
+    this.displayName,
     this.username,
     this.profilePic,
     this.likeCount,
@@ -27,36 +30,68 @@ class FeedModel {
   });
 
   Map<String, dynamic> toJson() {
+    Map<dynamic, dynamic>? likeMap;
+
+    if (likeList != null && likeList!.isNotEmpty) {
+      likeMap = Map.fromIterable(likeList!,
+          key: (v) => v.key,
+          value: (v) {
+            var list = LikeList(key: v.key, userId: v.userId);
+            return list.toJson();
+          });
+    }
+
     return {
-      "userId": userId,
+      "key": key,
       "description": description,
-      "name": name,
-      "profilePic": profilePic,
       "likeCount": likeCount,
       "commentCount": commentCount ?? 0,
       "createdAt": createdAt,
       "imagePath": imagePath,
-      "likeList": likeList,
+      "likeList": likeMap,
       "tags": tags,
-      "username": username
+      "userId": userId,
+      "displayName": displayName,
+      "username": username,
+      "profilePic": profilePic,
     };
   }
 
   FeedModel.setFeedModel(Map<String, dynamic> map) {
     key = map['key'];
-    key = map['key'];
     description = map['description'];
-    userId = map['userId'];
-    name = map['name'];
-    profilePic = map['profilePic'];
-    likeCount = map['likeCount'];
-    commentCount = map['commentCount'];
+    likeCount = map['likeCount'] ?? 0;
+    commentCount = map['commentCount'] ?? 0;
     imagePath = map['imagePath'];
     createdAt = map['createdAt'];
     imagePath = map['imagePath'];
+    tags = map['tags'];
+    displayName = map['displayName'];
     username = map['username'];
-    //tags = map['tags'];
+    userId = map['userId'];
+    profilePic = map['profilePic'];
+
+    likeList = [];
+
+    if (map['likeList'] != null) {
+      map['likeList'].forEach((key, value) {
+        if (value.containsKey('userId')) {
+          LikeList list = LikeList(key: key, userId: value['userId']);
+          likeList!.add(list);
+        }
+      });
+      likeCount = likeList!.length;
+    }
   }
 }
 
-class LikeList {}
+class LikeList {
+  String key;
+  String userId;
+
+  LikeList({required this.key, required this.userId});
+
+  toJson() {
+    return {'userId': userId};
+  }
+}

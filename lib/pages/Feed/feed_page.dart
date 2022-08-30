@@ -6,11 +6,10 @@ import 'package:twitter_flutter/helper/theme.dart';
 import 'package:twitter_flutter/helper/utility.dart';
 import 'package:twitter_flutter/models/feed_model.dart';
 import 'package:twitter_flutter/states/auth_state.dart';
-import 'package:twitter_flutter/widgets/custom_appbar.dart';
 import 'package:twitter_flutter/widgets/custom_widget.dart';
-
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../states/feed_state.dart';
-import '../../widgets/newWidget/custom_urltext.dart';
 
 class FeedPage extends StatefulWidget {
   final BuildContext? context;
@@ -23,7 +22,7 @@ class FeedPage extends StatefulWidget {
 class _FeedPageState extends State<FeedPage> {
   @override
   void initState() {
-    var feedState = Provider.of<FeedState>(context, listen: false);
+    //var feedState = Provider.of<FeedState>(context, listen: false);
     //feedState.getDataFromDatabase();
     super.initState();
   }
@@ -40,8 +39,6 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Widget _body() {
-    var feedState = Provider.of<FeedState>(context, listen: false);
-
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection('feeds').snapshots(),
       builder: (context, snapshot) {
@@ -51,7 +48,10 @@ class _FeedPageState extends State<FeedPage> {
           return ListView.builder(
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
-              return _postCard(snapshot.data!.docs[index]);
+              Map<String, dynamic> feedData =
+                  snapshot.data!.docs[index].data() as dynamic;
+              FeedModel feedModel = FeedModel.setFeedModel(feedData);
+              return _postCard(feedModel);
             },
           );
         }
@@ -59,9 +59,9 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
-  Widget _postCard(QueryDocumentSnapshot documentSnapshot) {
-    var state = Provider.of<AuthState>(context, listen: false);
-    Map<String, dynamic> feedData = documentSnapshot.data() as dynamic;
+  Widget _postCard(FeedModel feedModel) {
+    var authState = Provider.of<AuthState>(context, listen: false);
+    var feedState = Provider.of<FeedState>(context, listen: false);
     return Column(
       children: [
         Container(
@@ -69,48 +69,147 @@ class _FeedPageState extends State<FeedPage> {
           decoration: BoxDecoration(
             color: Theme.of(context).backgroundColor,
           ),
-          child: customListTile(
-            context,
-            onTap: () {},
-            leading: customInkWell(
-              context: context,
-              function2: () {
-                Navigator.of(context).pushNamed('');
+          child: Column(children: [
+            customListTile(
+              context,
+              onTap: () {
+                feedState.setFeedModel = feedModel;
+                //feedState.setCommentList = [];
+                Navigator.of(context)
+                    .pushNamed('/FeedPostDetail/${feedModel.key}');
               },
-              child: customImage(
-                  context, feedData['profilePic'] ?? dummyProfilePic),
+              leading: customInkWell(
+                context: context,
+                function2: () {
+                  Navigator.of(context)
+                      .pushNamed('/Profiles/${feedModel.userId}');
+                },
+                child: customImage(
+                    context, feedModel.profilePic ?? dummyProfilePic),
+              ),
+              title: Row(
+                children: <Widget>[
+                  customText(feedModel.displayName, style: titleStyle),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  customText(feedModel.username,
+                      style: subtitleStyle.copyWith(fontSize: 15)),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  customText('- ${Utility.getChatTime(feedModel.createdAt)}',
+                      style: subtitleStyle)
+                ],
+              ),
+              subtitle: Linkify(
+                onOpen: (link) async {
+                  if (await canLaunchUrl(Uri.parse(link.url))) {
+                    await launchUrl(Uri.parse(link.url));
+                  } else {
+                    throw 'Could not launch $link';
+                  }
+                },
+                text: feedModel.description ?? '',
+                style: const TextStyle(color: Colors.black38),
+                linkStyle: const TextStyle(color: Colors.blueAccent),
+              ),
             ),
-            title: Row(
-              children: <Widget>[
-                customText(feedData['name'], style: titleStyle),
+            _imageFeed(feedModel.imagePath, feedModel.key),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
                 const SizedBox(
-                  width: 10,
+                  width: 80,
                 ),
-                customText('- ${Utility.getChatTime(feedData['createdAt'])}',
-                    style: subtitleStyle)
+                IconButton(
+                  onPressed: () {
+                    feedState.setFeedModel = feedModel;
+                    Navigator.of(context)
+                        .pushNamed('/FeedReplyPage/${feedModel.key}');
+                  },
+                  icon: const Icon(
+                    Icons.message,
+                    color: Colors.black38,
+                  ),
+                ),
+                customText(feedModel.commentCount.toString()),
+                const SizedBox(
+                  width: 20,
+                ),
+                IconButton(
+                  onPressed: () {
+                    likeToPost(feedModel.key!);
+                  },
+                  icon: feedModel.likeList!
+                          .any((x) => x.userId == authState.userId)
+                      ? const Icon(Icons.favorite, color: Colors.red)
+                      : const Icon(Icons.favorite_border,
+                          color: Colors.black38),
+                ),
+                customText(feedModel.likeCount.toString()),
+                const SizedBox(
+                  width: 20,
+                ),
+                IconButton(
+                  onPressed: () {
+                    Utility.share('social.flutter.dev/feed/${feedModel.key}');
+                  },
+                  icon: const Icon(
+                    Icons.share,
+                    color: Colors.black38,
+                  ),
+                ),
               ],
             ),
-            subtitle: UrlText(
-              text: feedData['description'],
-              style: const TextStyle(
-                  color: Colors.black, fontWeight: FontWeight.w400),
-              urlStyle: const TextStyle(
-                  color: Colors.blue, fontWeight: FontWeight.w400),
-            ),
-          ),
-        )
+          ]),
+        ),
+        const Divider(height: 1),
       ],
     );
+  }
+
+  Widget _imageFeed(String? image, String? key) {
+    return image == null
+        ? Container()
+        : customInkWell(
+            context: context,
+            function2: () {
+              var feedState = Provider.of<FeedState>(context, listen: false);
+              feedState.getPostDetailFromDatabase(key);
+              Navigator.of(context).pushNamed('/ImageViewPage/');
+            },
+            child: Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 10, left: 10),
+              child: Container(
+                height: 190,
+                width: MediaQuery.of(context).size.width * 0.8,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).backgroundColor,
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    image: DecorationImage(
+                      image: NetworkImage(image),
+                      fit: BoxFit.cover,
+                    )),
+              ),
+            ));
+  }
+
+  void likeToPost(String postId) {
+    var feedState = Provider.of<FeedState>(context, listen: false);
+    var authState = Provider.of<AuthState>(context, listen: false);
+    feedState.addLikeToPost(postId, authState.userId);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: const Text('Home'),
       ),
       floatingActionButton: _floatingActionButton(),
-      body: Container(
+      body: SizedBox(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         child: RefreshIndicator(

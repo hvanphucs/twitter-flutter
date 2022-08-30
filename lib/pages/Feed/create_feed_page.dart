@@ -102,6 +102,7 @@ class _CreateFeedPageState extends State<CreateFeedPage> {
     FeedModel model = FeedModel(
       description: _textEditingController.text,
       userId: authState.userModel!.userId!,
+      displayName: authState.userModel!.displayName,
       username: authState.userModel!.username,
       profilePic: authState.userModel!.photoUrl ?? dummyProfilePic,
       createdAt: DateTime.now().toString(),
