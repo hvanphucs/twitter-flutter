@@ -6,6 +6,8 @@ import 'package:twitter_flutter/helper/constants.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:developer' as devtools show log;
 
+import 'package:url_launcher/url_launcher.dart';
+
 class Utility {
   static void cprint(dynamic data, {String? info}) {
     devtools.log(info == null ? data.toString() : '[$info] data.toString()');
@@ -102,5 +104,13 @@ class Utility {
 
   static share(String message, {String? subject}) {
     Share.share(message, subject: subject);
+  }
+
+  static openLink(link) async {
+    if (await canLaunchUrl(Uri.parse(link.url))) {
+      await launchUrl(Uri.parse(link.url));
+    } else {
+      throw 'Could not launch $link';
+    }
   }
 }

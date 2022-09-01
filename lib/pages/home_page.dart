@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
         return FeedPage(context: context);
       case 1:
         return SearchPage(context: context);
-      case 3:
+      case 2:
         return MessagePage(context: context);
       default:
         return FeedPage(context: context);

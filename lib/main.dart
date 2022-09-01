@@ -17,6 +17,7 @@ import 'package:twitter_flutter/pages/Profile/profile_page.dart';
 import 'package:twitter_flutter/pages/home_page.dart';
 import 'package:twitter_flutter/states/app_state.dart';
 import 'package:twitter_flutter/states/auth_state.dart';
+import 'package:twitter_flutter/states/chat_state.dart';
 import 'package:twitter_flutter/states/feed_state.dart';
 import 'package:twitter_flutter/widgets/custom_widget.dart';
 
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
   final AppState _appState = AppState();
   final AuthState _authState = AuthState();
   final FeedState _feedState = FeedState();
+  final ChatState _chatState = ChatState();
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -42,6 +44,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<AppState>(create: (context) => _appState),
         ChangeNotifierProvider<AuthState>(create: (context) => _authState),
         ChangeNotifierProvider<FeedState>(create: (context) => _feedState),
+        ChangeNotifierProvider<ChatState>(create: (context) => _chatState),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -127,7 +130,7 @@ class MyApp extends StatelessWidget {
 
           if (pathElements[1].contains('ImageViewPage')) {
             return CustomRoute<bool>(
-              builder: (context) => ImageViewPage(),
+              builder: (context) => const ImageViewPage(),
               settings: settings,
             );
           }

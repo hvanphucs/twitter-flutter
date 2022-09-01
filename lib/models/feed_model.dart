@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:twitter_flutter/models/comment_model.dart';
 
 class FeedModel {
