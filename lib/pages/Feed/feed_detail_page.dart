@@ -289,44 +289,38 @@ class _FeedPostDetailState extends State<FeedPostDetail> {
     final feedState = Provider.of<FeedState>(context, listen: true);
     feedState.getPostDetailFromDatabase(widget.postId);
 
-    return feedState.feedModel == null
-        ? loader()
-        : Scaffold(
-            floatingActionButton: _floatingActionButton(),
-            body: CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  title: const Text(
-                    'Threads',
-                    style: TextStyle(color: Colors.blueAccent),
-                  ),
-                  iconTheme:
-                      IconThemeData(color: Theme.of(context).primaryColor),
-                  backgroundColor: Colors.transparent,
-                ),
-                SliverList(
-                  delegate: SliverChildListDelegate(
-                    [
-                      _postBody(feedState.feedModel),
-                    ],
-                  ),
-                ),
-                SliverList(
-                  delegate: SliverChildListDelegate(
-                    feedState.commentList != null ||
-                            feedState.commentList!.isNotEmpty
-                        ? feedState.commentList!
-                            .map((x) => _commentRow(x))
-                            .toList()
-                        : [
-                            const Center(
-                              child: Text('No comments'),
-                            )
-                          ],
-                  ),
-                ),
+    return Scaffold(
+      floatingActionButton: _floatingActionButton(),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            title: const Text(
+              'Threads',
+              style: TextStyle(color: Colors.blueAccent),
+            ),
+            iconTheme: IconThemeData(color: Theme.of(context).primaryColor),
+            backgroundColor: Colors.transparent,
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                _postBody(feedState.feedModel),
               ],
             ),
-          );
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate(
+              feedState.commentList != null || feedState.commentList!.isNotEmpty
+                  ? feedState.commentList!.map((x) => _commentRow(x)).toList()
+                  : [
+                      const Center(
+                        child: Text('No comments'),
+                      )
+                    ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

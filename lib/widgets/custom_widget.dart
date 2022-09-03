@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:twitter_flutter/helper/utility.dart';
 
-Widget customTileText(String? title,
+Widget customTitleText(String? title,
     {BuildContext? context, TextStyle? style}) {
   return Text(
     title ?? '',
@@ -16,10 +16,39 @@ Widget customTileText(String? title,
   );
 }
 
+double fullWidth(BuildContext context) {
+  return MediaQuery.of(context).size.width;
+}
+
+double fullHeight(BuildContext context) {
+  return MediaQuery.of(context).size.height;
+}
+
+Widget customIcon(
+  BuildContext context, {
+  required IconData icon,
+  bool isEnable = false,
+  double size = 18,
+  bool isTwitterIcon = true,
+  bool isFontAwesomeSolid = false,
+  Color? iconColor,
+  double paddingIcon = 10,
+}) {
+  iconColor = iconColor ?? Theme.of(context).textTheme.caption!.color;
+  return Padding(
+    padding: EdgeInsets.only(bottom: isTwitterIcon ? paddingIcon : 0),
+    child: Icon(
+      icon,
+      size: size,
+      color: isEnable ? Theme.of(context).primaryColor : iconColor,
+    ),
+  );
+}
+
 Widget customInkWell({
   Widget? child,
   BuildContext? context,
-  Function(bool, int)? funtion1,
+  Function(bool, int)? function1,
   Function? function2,
   bool isEnable = false,
   int no = 0,
@@ -35,8 +64,8 @@ Widget customInkWell({
     child: InkWell(
       borderRadius: radius,
       onTap: () {
-        if (funtion1 != null) {
-          funtion1(isEnable, no);
+        if (function1 != null) {
+          function1(isEnable, no);
         } else if (function2 != null) {
           function2();
         }
@@ -75,8 +104,10 @@ Widget customText(String? msg,
 }
 
 Widget loader() {
-  return const CircularProgressIndicator(
-    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+  return const Center(
+    child: CircularProgressIndicator(
+      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+    ),
   );
 }
 

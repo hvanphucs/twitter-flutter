@@ -70,6 +70,10 @@ class _SignUpPageState extends State<SignUpPage> {
               state.logoutCallback();
               Navigator.of(context).pushNamed('/SignIn/');
             }),
+            _labelButton('Mock 10 Users', onPressed: () {
+              var state = Provider.of<AuthState>(context, listen: false);
+              state.createMockUser();
+            }),
           ],
         ),
       ),
@@ -189,7 +193,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: customTileText(
+        title: customTitleText(
           'Sign Up',
           context: context,
           style: const TextStyle(fontSize: 20),

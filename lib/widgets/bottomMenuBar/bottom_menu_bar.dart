@@ -15,6 +15,7 @@ class BottomMenuBar extends StatefulWidget {
 }
 
 class _BottomMenuBarState extends State<BottomMenuBar> {
+  // ignore: unused_field
   late final PageController? _pageController;
 
   @override

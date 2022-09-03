@@ -7,6 +7,7 @@ import 'package:twitter_flutter/models/comment_model.dart';
 import 'package:twitter_flutter/models/feed_model.dart';
 import 'package:twitter_flutter/models/user_model.dart';
 import 'package:twitter_flutter/states/app_state.dart';
+import 'package:twitter_flutter/states/profile_state.dart';
 import 'package:uuid/uuid.dart';
 
 class FeedState extends AppState {
@@ -31,14 +32,23 @@ class FeedState extends AppState {
     _commentList = list;
   }
 
-  void getAllFeedFromDatabase() async {
+  void getDataFromDatabase() async {
     final feedSnap = await _firestore.collection('feeds').get();
 
     final feedData = feedSnap.docs.map((doc) => doc.data()).toList();
 
     _feedList = [];
     for (var feed in feedData) {
-      _feedList!.add(FeedModel.setFeedModel(feed));
+      FeedModel feedModel = FeedModel.setFeedModel(feed);
+
+      UserModel? author = await ProfileState().getProfileUser(feedModel.userId);
+      if (author != null) {
+        Utility.cprint('get');
+        feedModel.displayName = author.displayName;
+        feedModel.profilePic = author.photoUrl;
+      }
+
+      _feedList!.add(feedModel);
     }
   }
 
@@ -117,6 +127,13 @@ class FeedState extends AppState {
 
         if (feedSnap.data() != null) {
           _feedModel = FeedModel.setFeedModel(feedSnap.data()!);
+          UserModel? author =
+              await ProfileState().getProfileUser(_feedModel?.userId);
+          if (author != null) {
+            Utility.cprint('get');
+            _feedModel?.displayName = author.displayName;
+            _feedModel?.profilePic = author.photoUrl;
+          }
         }
 
         notifyListeners();

@@ -17,6 +17,7 @@ class UserModel {
   String? createdAt;
   List? followers;
   List? following;
+  bool? isVerified;
 
   UserModel({
     this.key,
@@ -33,6 +34,7 @@ class UserModel {
     this.createdAt,
     this.followers,
     this.following,
+    this.isVerified = false,
   });
 
   static UserModel fromJson(Map<dynamic, dynamic> map) {

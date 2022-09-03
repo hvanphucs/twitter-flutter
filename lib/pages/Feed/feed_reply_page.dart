@@ -186,7 +186,7 @@ class _FeedReplyPageState extends State<FeedReplyPage> {
     var authState = Provider.of<AuthState>(context, listen: false);
     return Scaffold(
       appBar: CustomAppBar(
-        title: customTileText(''),
+        title: customTitleText(''),
         onActionPressed: _submitButton,
         isCrossButton: true,
         submitButtonText: 'Reply',

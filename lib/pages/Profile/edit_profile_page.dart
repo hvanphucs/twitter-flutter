@@ -7,6 +7,7 @@ import 'package:twitter_flutter/helper/constants.dart';
 import 'package:twitter_flutter/helper/utility.dart';
 import 'package:twitter_flutter/models/user_model.dart';
 import 'package:twitter_flutter/states/auth_state.dart';
+import 'package:twitter_flutter/states/profile_state.dart';
 import 'package:twitter_flutter/widgets/custom_widget.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -176,8 +177,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   void _submitButton() {
-    var state = Provider.of<AuthState>(context, listen: false);
-    UserModel? model = state.userModel!;
+    var profileState = Provider.of<ProfileState>(context, listen: false);
+    UserModel? model = profileState.userModel!;
 
     if (_name.text.isNotEmpty) {
       model.displayName = _name.text;
@@ -192,7 +193,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       model.dob = dob;
     }
 
-    state.updateUserProfile(model, image: _image);
+    profileState.updateUserProfile(model, image: _image);
     Navigator.of(context).pop();
   }
 

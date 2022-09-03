@@ -22,8 +22,8 @@ class FeedPage extends StatefulWidget {
 class _FeedPageState extends State<FeedPage> {
   @override
   void initState() {
-    //var feedState = Provider.of<FeedState>(context, listen: false);
-    //feedState.getDataFromDatabase();
+    var feedState = Provider.of<FeedState>(context, listen: false);
+    feedState.getDataFromDatabase();
     super.initState();
   }
 
@@ -39,24 +39,16 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Widget _body() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('feeds').snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.data == null) {
-          return loader();
-        } else {
-          return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
+    var feedState = Provider.of<FeedState>(context, listen: false);
+
+    return feedState.feedList == null
+        ? loader()
+        : ListView.builder(
+            itemCount: feedState.feedList!.length,
             itemBuilder: (context, index) {
-              Map<String, dynamic> feedData =
-                  snapshot.data!.docs[index].data() as dynamic;
-              FeedModel feedModel = FeedModel.setFeedModel(feedData);
-              return _postCard(feedModel);
+              return _postCard(feedState.feedList![index]);
             },
           );
-        }
-      },
-    );
   }
 
   Widget _postCard(FeedModel feedModel) {

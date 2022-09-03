@@ -10,15 +10,16 @@ class CommentModel {
   String createdAt;
   String? imagePath;
 
-  CommentModel(
-      {required this.key,
-      required this.parentId,
-      required this.description,
-      required this.user,
-      this.likeCount = 0,
-      this.commentCount = 0,
-      this.createdAt = '',
-      this.imagePath});
+  CommentModel({
+    required this.key,
+    required this.parentId,
+    required this.description,
+    required this.user,
+    this.likeCount = 0,
+    this.commentCount = 0,
+    this.createdAt = '',
+    this.imagePath,
+  });
 
   toJson() {
     return {

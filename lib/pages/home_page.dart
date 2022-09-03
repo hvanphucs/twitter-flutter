@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:twitter_flutter/pages/Message/message_users_dart.dart';
 import 'package:twitter_flutter/pages/Search/search_page.dart';
 import 'package:twitter_flutter/pages/message/message_page.dart';
 
@@ -32,7 +33,7 @@ class _HomePageState extends State<HomePage> {
       case 1:
         return SearchPage(context: context);
       case 2:
-        return MessagePage(context: context);
+        return MessageUsersList(context: context);
       default:
         return FeedPage(context: context);
     }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
@@ -9,13 +11,16 @@ import 'package:twitter_flutter/models/message_model.dart';
 import 'package:twitter_flutter/models/user_model.dart';
 import 'package:twitter_flutter/states/auth_state.dart';
 import 'package:twitter_flutter/states/chat_state.dart';
-import 'package:twitter_flutter/widgets/bottomMenuBar/tab_item.dart';
+import 'package:twitter_flutter/states/profile_state.dart';
 import 'package:twitter_flutter/widgets/custom_widget.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:sizer/sizer.dart';
 
 class MessagePage extends StatefulWidget {
   final BuildContext? context;
-  const MessagePage({Key? key, this.context}) : super(key: key);
+
+  String? chatUserId;
+
+  MessagePage({Key? key, this.context, this.chatUserId}) : super(key: key);
 
   @override
   State<MessagePage> createState() => _MessagePageState();
@@ -24,22 +29,28 @@ class MessagePage extends StatefulWidget {
 class _MessagePageState extends State<MessagePage> {
   late final ScrollController _scrollController;
   late final TextEditingController _textEditingController;
+
   String? senderId;
-  UserModel? chatUser;
+  String? chatUserId;
+
+  File? _file;
+  String? _fileType;
+
   @override
   void initState() {
     _scrollController = ScrollController();
     _textEditingController = TextEditingController();
 
     var chatState = Provider.of<ChatState>(context, listen: false);
-    var authState = Provider.of<AuthState>(context, listen: false);
-    senderId = authState.userModel!.userId;
+    var profileState = Provider.of<ProfileState>(context, listen: false);
+    senderId = profileState.userId;
+    chatUserId = widget.chatUserId ?? senderId;
 
     chatState.setIsChatScreenOpen = true;
-    senderId = authState.userModel!.userId;
-    chatUser = authState.userModel!;
-    chatState.databaseInit(authState.profileUserModel!, chatUser!);
+
+    chatState.databaseInit(senderId!, chatUserId!);
     chatState.getchatDetailAsync();
+
     super.initState();
   }
 
@@ -51,7 +62,7 @@ class _MessagePageState extends State<MessagePage> {
   }
 
   Widget _chatScreenBody() {
-    var chatState = Provider.of<ChatState>(context, listen: true);
+    var chatState = Provider.of<ChatState>(context, listen: false);
     if (chatState.messageList == null || chatState.messageList!.isEmpty) {
       return const Center(
         child: Text(
@@ -59,16 +70,17 @@ class _MessagePageState extends State<MessagePage> {
           style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
         ),
       );
+    } else {
+      return ListView.builder(
+          controller: _scrollController,
+          shrinkWrap: true,
+          reverse: true,
+          physics: const BouncingScrollPhysics(),
+          itemCount: chatState.messageList!.length,
+          itemBuilder: (context, index) {
+            return chatMessage(chatState.messageList![index]);
+          });
     }
-    return ListView.builder(
-        controller: _scrollController,
-        shrinkWrap: true,
-        reverse: true,
-        physics: const BouncingScrollPhysics(),
-        itemCount: chatState.messageList!.length,
-        itemBuilder: (context, index) {
-          return chatMessage(chatState.messageList![index]);
-        });
   }
 
   Widget chatMessage(MessageModel messageModel) {
@@ -83,6 +95,8 @@ class _MessagePageState extends State<MessagePage> {
   }
 
   Widget _message(MessageModel messageModel, bool myMessage) {
+    var chatState = Provider.of<ChatState>(context, listen: false);
+
     return Column(
       crossAxisAlignment:
           myMessage ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -99,52 +113,70 @@ class _MessagePageState extends State<MessagePage> {
                 ? const SizedBox()
                 : CircleAvatar(
                     backgroundColor: Colors.transparent,
-                    backgroundImage: NetworkImage(dummyProfilePic),
+                    backgroundImage: NetworkImage(
+                        chatState.chatUser?.photoUrl ?? dummyProfilePic),
                   ),
             Expanded(
               child: Container(
                 alignment:
                     myMessage ? Alignment.centerRight : Alignment.centerLeft,
                 margin: EdgeInsets.only(
-                  right:
-                      myMessage ? 10 : (MediaQuery.of(context).size.width / 4),
+                  right: myMessage ? 10 : 25.w,
                   top: 20,
-                  left:
-                      myMessage ? (MediaQuery.of(context).size.width / 4) : 10,
+                  left: myMessage ? 25.w : 10,
                 ),
-                child: Stack(
+                child: Column(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topLeft: const Radius.circular(20),
-                          topRight: const Radius.circular(20),
-                          bottomRight: myMessage
-                              ? const Radius.circular(0)
-                              : const Radius.circular(20),
-                          bottomLeft: myMessage
-                              ? const Radius.circular(20)
-                              : const Radius.circular(0),
-                        ),
-                        color: myMessage ? Colors.blueAccent : Colors.black12,
-                      ),
-                      child: Column(
-                        children: [
-                          Linkify(
-                            onOpen: Utility.openLink,
-                            text: messageModel.message ?? '',
-                            style: TextStyle(
-                                color:
-                                    myMessage ? Colors.white : Colors.black87),
-                            linkStyle: TextStyle(
-                              color:
-                                  myMessage ? Colors.white : Colors.blueAccent,
-                              decoration: TextDecoration.underline,
+                    Stack(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: const Radius.circular(20),
+                              topRight: const Radius.circular(20),
+                              bottomRight: myMessage
+                                  ? const Radius.circular(0)
+                                  : const Radius.circular(20),
+                              bottomLeft: myMessage
+                                  ? const Radius.circular(20)
+                                  : const Radius.circular(0),
                             ),
+                            color:
+                                myMessage ? Colors.blueAccent : Colors.black12,
                           ),
-                        ],
-                      ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              messageModel.fileUrl != null &&
+                                      messageModel.fileType == 'image'
+                                  ? InkWell(
+                                      onTap: () {},
+                                      child: Image(
+                                        image:
+                                            NetworkImage(messageModel.fileUrl!),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  : const SizedBox(),
+                              Linkify(
+                                onOpen: Utility.openLink,
+                                text: messageModel.message ?? '',
+                                style: TextStyle(
+                                    color: myMessage
+                                        ? Colors.white
+                                        : Colors.black87),
+                                linkStyle: TextStyle(
+                                  color: myMessage
+                                      ? Colors.white
+                                      : Colors.blueAccent,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -179,47 +211,157 @@ class _MessagePageState extends State<MessagePage> {
     );
   }
 
+  Widget _fileFeed() {
+    return _file == null
+        ? Container()
+        : Stack(
+            children: [
+              Container(
+                alignment: Alignment.topLeft,
+                height: 300,
+                width: 80.w,
+                decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    image: DecorationImage(
+                      image: FileImage(_file!),
+                      fit: BoxFit.cover,
+                    )),
+              ),
+              Align(
+                alignment: Alignment.topLeft,
+                child: Container(
+                  padding: const EdgeInsets.all(0),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black26,
+                  ),
+                  child: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _file = null;
+                        });
+                      },
+                      padding: const EdgeInsets.all(0),
+                      iconSize: 20,
+                      icon: Icon(
+                        Icons.close,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      )),
+                ),
+              ),
+            ],
+          );
+  }
+
   Widget _bottomEntryField() {
     return Align(
       alignment: Alignment.bottomLeft,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          const Divider(
-            thickness: 0,
-            height: 1,
-          ),
-          TextField(
-            onSubmitted: (value) => submitMessage(),
-            controller: _textEditingController,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 13,
+          _file != null
+              ? const Divider(
+                  height: 1,
+                  thickness: 2,
+                )
+              : const SizedBox(),
+          _file != null
+              ? Container(
+                  color: Colors.transparent,
+                  alignment: Alignment.bottomLeft,
+                  padding: const EdgeInsets.all(10),
+                  child: _fileFeed(),
+                )
+              : const SizedBox(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(
+                width: 5,
               ),
-              alignLabelWithHint: true,
-              hintText: 'Start with a message...',
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.send),
-                onPressed: submitMessage,
+              InkWell(
+                child: const Icon(
+                  Icons.image_outlined,
+                  color: Colors.blueAccent,
+                ),
+                onTap: () {
+                  _selectImageBottom(context);
+                },
               ),
-            ),
+              InkWell(
+                child: const Icon(
+                  Icons.gif_box_outlined,
+                  color: Colors.blueAccent,
+                ),
+                onTap: () {},
+              ),
+              SizedBox(
+                width: 70.w,
+                child: Container(
+                  constraints: const BoxConstraints(maxHeight: 50),
+                  child: Scrollbar(
+                    child: TextField(
+                      onSubmitted: (value) => submitMessage(),
+                      controller: _textEditingController,
+                      maxLines: null,
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 13,
+                        ),
+                        alignLabelWithHint: true,
+                        hintText: 'Start with a message...',
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                height: 25,
+                width: 30,
+                padding: const EdgeInsets.only(right: 10, left: 5),
+                margin: const EdgeInsets.symmetric(horizontal: 5),
+                decoration: const BoxDecoration(
+                  border:
+                      Border(left: BorderSide(width: 2, color: Colors.black45)),
+                ),
+                child: InkWell(
+                  child: const Icon(
+                    Icons.send_outlined,
+                    color: Colors.blueAccent,
+                  ),
+                  onTap: () {
+                    submitMessage();
+                  },
+                ),
+              )
+            ],
           ),
         ],
       ),
     );
   }
 
+  void _selectImageBottom(context) {
+    openImagePicker(context, (file) {
+      setState(() {
+        _file = File(file.path);
+        _fileType = 'image';
+      });
+    });
+  }
+
   void submitMessage() {
     var chatState = Provider.of<ChatState>(context, listen: false);
-    var authState = Provider.of<AuthState>(context, listen: false);
 
-    if (_textEditingController.text.isEmpty) {
+    if (_textEditingController.text.isEmpty && _file == null) {
       return;
+    } else if (_textEditingController.text.isEmpty && _file != null) {
+      _textEditingController.text = '';
     }
 
-    UserModel chatUser = authState.userModel!;
-    UserModel myUser = authState.userModel!;
+    UserModel chatUser = chatState.chatUser!;
+    UserModel myUser = chatState.myUser!;
 
     MessageModel messageModel = MessageModel(
       message: _textEditingController.text,
@@ -228,14 +370,15 @@ class _MessagePageState extends State<MessagePage> {
       receiverId: chatUser.userId,
       seen: false,
       timeStamp: DateTime.now().millisecondsSinceEpoch.toString(),
-      senderName: authState.userModel!.displayName,
+      senderName: myUser.displayName,
     );
 
     chatState.onMessageSubmitted(messageModel,
-        myUser: myUser, secondUser: chatUser);
+        myUser: myUser, secondUser: chatUser, file: _file, fileType: _fileType);
 
     Future.delayed(const Duration(milliseconds: 50)).then((_) {
       _textEditingController.clear();
+      _file = null;
     });
     try {
       if (chatState.messageList != null &&
@@ -253,15 +396,16 @@ class _MessagePageState extends State<MessagePage> {
   }
 
   Future<bool> _onWillPop() async {
-    final chatState = Provider.of<ChatState>(context, listen: false);
+    var chatState = Provider.of<ChatState>(context, listen: false);
     chatState.setIsChatScreenOpen = false;
-    //chatState.dispose();
+    chatState.onChatScreenClosed();
     return true;
   }
 
   @override
   Widget build(BuildContext context) {
-    //var chatState = Provider.of<ChatState>(context, listen: false);
+    var chatState = Provider.of<ChatState>(context, listen: true);
+    //getLastMessage();
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -270,8 +414,25 @@ class _MessagePageState extends State<MessagePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                chatUser?.displayName ?? 'Chat ...',
-                style: const TextStyle(color: Colors.black12),
+                chatState.chatUser?.userId != chatState.myUser?.userId
+                    ? chatState.chatUser?.displayName ?? 'Chat...'
+                    : 'Yours',
+                style: const TextStyle(
+                  color: Colors.black87,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                chatState.chatUser?.userId != chatState.myUser?.userId
+                    ? chatState.chatUser?.username != null
+                        ? '@${chatState.chatUser?.username}'
+                        : ''
+                    : '',
+                style: const TextStyle(
+                  color: Colors.red, // AppColor.darkGrey,
+                  fontSize: 15,
+                ),
               )
             ],
           ),
@@ -291,7 +452,7 @@ class _MessagePageState extends State<MessagePage> {
               Align(
                 alignment: Alignment.topRight,
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 50),
+                  padding: EdgeInsets.only(bottom: _file != null ? 400 : 50),
                   child: _chatScreenBody(),
                 ),
               ),

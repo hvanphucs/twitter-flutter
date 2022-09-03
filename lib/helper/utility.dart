@@ -10,7 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class Utility {
   static void cprint(dynamic data, {String? info}) {
-    devtools.log(info == null ? data.toString() : '[$info] data.toString()');
+    devtools.log(info == null ? data.toString() : '[$info] ${data.toString()}');
   }
 
   static void showCustomSnackBar(String text, BuildContext context,

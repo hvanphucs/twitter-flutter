@@ -21,7 +21,7 @@ class _SignInPageState extends State<SignInPage> {
   void initState() {
     _emailControler = TextEditingController();
     _passwordControler = TextEditingController();
-    _emailControler.text = 'hvanphucs@gmail.com';
+    _emailControler.text = 'hvanphucs1@gmail.com';
     _passwordControler.text = '123456789';
     super.initState();
   }
@@ -205,7 +205,7 @@ class _SignInPageState extends State<SignInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: customTileText(
+        title: customTitleText(
           'Sign In',
           context: context,
           style: const TextStyle(fontSize: 20),

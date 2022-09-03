@@ -7,11 +7,15 @@ class MessageModel {
   String? timeStamp;
   String? senderName;
   String? receiverId;
+  String? fileUrl;
+  String? fileType;
 
   MessageModel({
     this.key,
     this.senderId,
     this.message,
+    this.fileUrl,
+    this.fileType,
     this.seen,
     this.createdAt,
     this.timeStamp,
@@ -23,7 +27,10 @@ class MessageModel {
     return MessageModel(
       key: map["key"],
       senderId: map["senderId"],
+      receiverId: map["receiverId"],
       message: map["message"],
+      fileUrl: map["fileUrl"],
+      fileType: map["fileType"],
       seen: map["seen"],
       createdAt: map["createdAt"],
       timeStamp: map['timeStamp'],
@@ -34,6 +41,8 @@ class MessageModel {
         "key": key,
         "senderId": senderId,
         "message": message,
+        "fileUrl": fileUrl,
+        "fileType": fileType,
         "receiverId": receiverId,
         "seen": seen,
         "createdAt": createdAt,
